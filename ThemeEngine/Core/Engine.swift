@@ -21,20 +21,34 @@
 // SOFTWARE.
 
 
-import UIKit
+import Foundation
 
-class ViewController: UIViewController {
+class Engine {
+    
+    typealias Theme = Dictionary<String, Node>
+    var theme = Theme()
+    
+    func style(names: [String]) -> Node.Style {
+        var styles: [Node.Style] = []
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        let chain = Array(names.reversed())
+        for (index, name) in chain.enumerated() {
+            guard let node = theme[name] else {
+                continue
+            }
+        
+            let parents = Array(chain[index+1..<chain.count])
+            let style = node.findStyles(chain: parents)
+            styles.append(contentsOf: style)
+        }
+        
+        var result = Node.Style()
+        for style in styles.reversed() {
+            style.forEach {
+                result.updateValue($1, forKey: $0)
+            }
+        }
+        
+        return result
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
-
 }
-
